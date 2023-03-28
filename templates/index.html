@@ -1,0 +1,22 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Welcome, {{ given_name }}</h1>
+    <p>Here are the available dashboards:</p>
+    <ul class="list-group mb-4">
+        {% for dashboard in dashboards %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ dashboard.url_base_pathname }}">{{ dashboard.name }}</a>
+                <a href="{{ dashboard.url_base_pathname }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    <p><a href="{{ url_for('logout') }}" class="btn btn-danger"><i class="fas fa-sign-out-alt mr-2"></i>Log out</a></p>
+{% endblock %}

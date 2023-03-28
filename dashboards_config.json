@@ -1,0 +1,26 @@
+{
+  "dashboards": [
+    {
+      "assets_folder": "assets/dashboard1",
+      "file": "dashboard1",
+      "name": "Test 1",
+      "storage": [
+        {
+          "name": "Dashy1",
+          "type": "SQL"
+        },
+        {
+          "name": "dashy1_json",
+          "type": "JSON"
+        }
+      ],
+      "url_base_pathname": "/dashboard1/"
+    },
+    {
+      "assets_folder": "assets/dashboard2",
+      "file": "dashboard2",
+      "name": "Test 2",
+      "url_base_pathname": "/dashboard3/"
+    }
+  ]
+}
