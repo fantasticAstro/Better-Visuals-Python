@@ -5,6 +5,7 @@ from flask import Flask, redirect, url_for, render_template, session, request
 from flask_dance.contrib.google import make_google_blueprint, google
 from utils.db_util import init_db, db
 import logging
+import traceback
 
 
 # Flask app + Google OAuth setup
@@ -17,6 +18,7 @@ google_bp = make_google_blueprint(
     client_id=app.config["GOOGLE_OAUTH_CLIENT_ID"],
     client_secret=app.config["GOOGLE_OAUTH_CLIENT_SECRET"],
     scope=["profile", "email"],
+    offline=True,
 )
 app.register_blueprint(google_bp, url_prefix="/login")
 
@@ -79,11 +81,14 @@ def logout():
 # Error Handlers - 404
 @app.errorhandler(404)
 def page_not_found(e):
+    app.logger.error(f"Error 404: {e}")
     return render_template("error-404.html"), 404
 
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    app.logger.error(f"Error 500: {e}")
+    app.logger.error(traceback.format_exc())
     return render_template("error.html"), 500
 
 
