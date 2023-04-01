@@ -3,6 +3,7 @@ import json
 import importlib
 from flask import Flask, redirect, url_for, render_template, session, request
 from flask_dance.contrib.google import make_google_blueprint, google
+from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from utils.db_util import init_db, db
 import logging
 import traceback
@@ -78,7 +79,7 @@ def logout():
     return redirect(url_for("welcome"))
 
 
-# Error Handlers - 404
+# Error Handlers
 @app.errorhandler(404)
 def page_not_found(e):
     app.logger.error(f"Error 404: {e}")
@@ -90,6 +91,12 @@ def handle_exception(e):
     app.logger.error(f"Error 500: {e}")
     app.logger.error(traceback.format_exc())
     return render_template("error.html"), 500
+
+
+@app.errorhandler(InvalidClientIdError)
+def handle_invalid_google_login(e):
+    session.clear()
+    return redirect(url_for("welcome"))
 
 
 if __name__ == "__main__":
