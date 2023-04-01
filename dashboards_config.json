@@ -21,6 +21,18 @@
       "file": "dashboard2",
       "name": "Test 2",
       "url_base_pathname": "/dashboard3/"
+    },
+    {
+      "assets_folder": "assets/spotify",
+      "file": "spotify_test",
+      "name": "Spotify Timelime",
+      "storage": [
+        {
+          "name": "Spotify-ClientID",
+          "type": "SQL"
+        }
+      ],
+      "url_base_pathname": "/spotify_test/"
     }
   ]
 }

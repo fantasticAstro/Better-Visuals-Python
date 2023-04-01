@@ -12,6 +12,7 @@ python-dotenv = "*"
 dash-bootstrap-templates = "*"
 pandas = "*"
 flask-sqlalchemy = "*"
+spotipy = "*"
 
 [dev-packages]
 

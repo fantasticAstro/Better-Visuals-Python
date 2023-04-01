@@ -28,3 +28,16 @@ class Dashboard1Table1(db.Model):
 
     def __repr__(self):
         return f'<UserInput {self.email} {self.value}>'
+
+
+class SpotifyClientID(db.Model):
+    __tablename__ = [storage['name'] for storage in dashboard_storage_metadata['spotify_test'] if storage['type'] == 'SQL'][0]
+    email = db.Column(db.String(120), primary_key=True)
+    clientid = db.Column(db.String(120), nullable=False)
+
+    def __init__(self, email, clientid):
+        self.email = email
+        self.clientid = clientid
+
+    def __repr__(self):
+        return f'<UserInput {self.email} {self.clientid}>'
