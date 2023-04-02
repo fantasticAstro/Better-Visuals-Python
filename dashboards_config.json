@@ -23,7 +23,7 @@
       "url_base_pathname": "/dashboard3/"
     },
     {
-      "assets_folder": "assets/spotify",
+      "assets_folder": "assets/spotify_test",
       "file": "spotify_test",
       "name": "Spotify Timelime",
       "storage": [
