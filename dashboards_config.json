@@ -44,6 +44,17 @@
           "type": "folder"
         }
       ]
+    },
+    {
+      "file": "template",
+      "name": "Template",
+      "url_base_pathname": "/template/",
+      "storage": [
+        {
+          "name": "template",
+          "type": "folder"
+        }
+      ]
     }
   ]
 }
