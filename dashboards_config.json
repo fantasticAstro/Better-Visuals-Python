@@ -1,57 +1,12 @@
 {
   "dashboards": [
     {
-      "assets_folder": "assets/dashboard1",
-      "file": "dashboard1",
-      "name": "Test 1",
-      "storage": [
-        {
-          "name": "Dashy1",
-          "type": "SQL"
-        },
-        {
-          "name": "dashy1_json",
-          "type": "JSON"
-        }
-      ],
-      "url_base_pathname": "/dashboard1/"
-    },
-    {
-      "assets_folder": "assets/dashboard2",
-      "file": "dashboard2",
-      "name": "Test 2",
-      "url_base_pathname": "/dashboard3/"
-    },
-    {
-      "assets_folder": "assets/spotify_test",
-      "file": "spotify_test",
-      "name": "Spotify Timelime",
-      "storage": [
-        {
-          "name": "Spotify-ClientID",
-          "type": "SQL"
-        }
-      ],
-      "url_base_pathname": "/spotify_test/"
-    },
-    {
       "file": "top_100",
       "name": "Your Top Songs Timeline",
       "url_base_pathname": "/top_100/",
       "storage": [
         {
           "name": "top_100",
-          "type": "folder"
-        }
-      ]
-    },
-    {
-      "file": "template",
-      "name": "Template",
-      "url_base_pathname": "/template/",
-      "storage": [
-        {
-          "name": "template",
           "type": "folder"
         }
       ]
