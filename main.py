@@ -1,7 +1,7 @@
 import os
 import json
 import importlib
-from flask import Flask, redirect, url_for, render_template, session, request
+from flask import Flask, redirect, url_for, render_template, session, request, send_from_directory
 from flask_dance.contrib.google import make_google_blueprint, google
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from utils.db_util import init_db, db
@@ -48,6 +48,11 @@ for dashboard_metadata in dashboard_data_list:
     create_dash_app = getattr(dashboard_module, "create_dash_app")
     create_dash_app(app, google, dashboard_metadata)
 
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'assets'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 # Create Home Page (requires login)
 @app.route("/")
