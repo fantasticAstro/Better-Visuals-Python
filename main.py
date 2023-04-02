@@ -58,6 +58,7 @@ def index():
     resp = google.get("/oauth2/v1/userinfo")
     assert resp.ok, resp.text
     user_info = resp.json()
+    session['id'] = user_info['id']
     session['email'] = user_info['email']
     session['given_name'] = user_info['given_name']
 
