@@ -13,6 +13,7 @@ dash-bootstrap-templates = "*"
 pandas = "*"
 flask-sqlalchemy = "*"
 spotipy = "*"
+scikit-learn = "*"
 
 [dev-packages]
 

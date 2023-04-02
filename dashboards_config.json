@@ -33,6 +33,17 @@
         }
       ],
       "url_base_pathname": "/spotify_test/"
+    },
+    {
+      "file": "top_100",
+      "name": "Your Top Songs Timeline",
+      "url_base_pathname": "/top_100/",
+      "storage": [
+        {
+          "name": "top_100",
+          "type": "folder"
+        }
+      ]
     }
   ]
 }
