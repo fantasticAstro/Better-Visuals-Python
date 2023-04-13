@@ -57,6 +57,7 @@ def create_dash_app(server, google, dashboard_metadata):
                     [
                         dbc.DropdownMenuItem("Email: ", header=True, id="email-display"),
                         dbc.DropdownMenuItem(divider=True),
+                        dbc.DropdownMenuItem("Clear Data", id="clear-data", n_clicks=0),
                         dbc.DropdownMenuItem("Logout", href="/logout", external_link=True),
                     ],
                     nav=True,
@@ -144,6 +145,7 @@ def create_dash_app(server, google, dashboard_metadata):
 
                 ),
                 footer,
+                dcc.Location(id='url'),
                 dcc.Store(id='tracks-df'),
                 dcc.Store(id='tracks-encoded-df'),
                 dcc.Store(id='years-list'),
@@ -418,6 +420,16 @@ def create_dash_app(server, google, dashboard_metadata):
             layout=go.Layout(height=1000, title=f'{year_filter} Songs Details'))
 
         return g1, g2
+
+    @dash_app.callback(
+        dd.Output('url', 'href'),
+        dd.Input("clear-data", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def clear_data(_):
+        save_folder = [storage['name'] for storage in dashboard_metadata["storage"] if storage['type'] == 'folder'][0]
+        clear_data_from_disk(save_folder=save_folder, userid=session['id'])
+        return dashboard_metadata['url_base_pathname']
 
     @dash_app.callback(
         dd.Output("email-display", "children"),
