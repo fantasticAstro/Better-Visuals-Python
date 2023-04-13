@@ -10,6 +10,17 @@
           "type": "folder"
         }
       ]
+    },
+    {
+      "file": "ynab",
+      "name": "YNAB Budget Report",
+      "url_base_pathname": "/ynab/",
+      "storage": [
+        {
+          "name": "ynab",
+          "type": "folder"
+        }
+      ]
     }
   ]
 }
