@@ -116,14 +116,22 @@ def create_dash_app(server, google, dashboard_metadata):
                                 ),
                                 dbc.Card(
                                     dbc.CardBody([
-                                        html.B("Date Range Slider"),
-                                        html.Hr(),
-                                        dcc.RangeSlider(
-                                            id="date-range-slider",
-                                            min=0, max=12,
-                                            allowCross=False,
-                                            step=1,
-                                        )
+                                            html.B("Date Range Slider"),
+                                            html.Hr(),
+                                            dcc.RangeSlider(
+                                                id="date-range-slider",
+                                                min=0, max=12,
+                                                allowCross=False,
+                                                step=1,
+                                            ),
+                                            html.Hr(),
+                                            html.B("Account Selector"),
+                                            html.Hr(),
+                                            dbc.Checklist(
+                                                id="account-selector-checklist",
+                                                options=[],
+                                                value=[],
+                                            )
                                     ]
                                     ),
                                     className="mb-4"
@@ -230,15 +238,30 @@ def create_dash_app(server, google, dashboard_metadata):
         return date_range_decoder, date_range_value[0], date_range_value[1],date_range_value
 
     @dash_app.callback(
+        dd.Output("account-selector-checklist", "options"),
+        dd.Output("account-selector-checklist", "value"),
+        dd.Input("register-df", "modified_timestamp"),
+        dd.State("register-df", "data"),
+    )
+    def create_acc_checklist(ts, register_df):
+        if register_df is None:
+            raise dash.exceptions.PreventUpdate
+        register_df = pd.read_json(register_df, orient='split')
+
+        accounts_list = list(register_df['Account'].unique())
+        return accounts_list, accounts_list
+
+    @dash_app.callback(
         dd.Output("income-expense-graph", "figure"),
         dd.Output("expense-category-graph", "figure"),
         dd.Output("account-balance-graph", "figure"),
         dd.Input("budget-df", "modified_timestamp"),
         dd.Input("date-range-slider", "value"),
+        dd.Input("account-selector-checklist", "value"),
         dd.State("register-df", "data"),
         dd.State("budget-df", "data"),
     )
-    def create_graphs(ts, date_range_value, register_df, budget_df):
+    def create_graphs(ts, date_range_value, accounts_list, register_df, budget_df):
         if budget_df is None:
             raise dash.exceptions.PreventUpdate
         register_df = pd.read_json(register_df, orient='split')
@@ -251,6 +274,7 @@ def create_dash_app(server, google, dashboard_metadata):
         # Data transformations
         budget_df['date_range_encoded'] = budget_df['Month'].map(date_range_encoder)
         register_df['date_range_encoded'] = pd.to_datetime(register_df['Date']).dt.strftime('%b %Y').map(date_range_encoder)
+        register_df = register_df[register_df['Account'].isin(accounts_list)]
 
         monthly_data = register_df.groupby(['date_range_encoded']).sum(numeric_only=True).reset_index()
         monthly_budget_activity = budget_df.groupby(['date_range_encoded', 'Month']).sum(numeric_only=True).reset_index()
