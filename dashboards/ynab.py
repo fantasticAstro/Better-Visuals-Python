@@ -276,6 +276,7 @@ def create_dash_app(server, google, dashboard_metadata):
         outflow_by_category = register_df.groupby(['Category Group', 'Category']).sum(numeric_only=True).reset_index()[['Category Group', 'Category', 'Outflow']]
         unspent_row = pd.DataFrame({'Category Group': ['Unspent'], 'Category': ['Unspent'], 'Outflow': [unspent_money]})
         outflow_by_category = pd.concat([outflow_by_category, unspent_row], ignore_index=True)
+        outflow_by_category = outflow_by_category[outflow_by_category['Category Group'] != 'Inflow']
 
         # Creating colors
         template = pio.templates['flatly']
