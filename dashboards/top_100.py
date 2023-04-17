@@ -14,7 +14,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 import json
 
 import spotipy
-from spotipy.oauth2 import SpotifyPKCE
+from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import CacheFileHandler
 
 from utils.utils import *
@@ -23,8 +23,8 @@ from utils.utils import *
 # stylesheet with the .dbc class from dash-bootstrap-templates library
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 fa_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-sp = spotipy.Spotify(auth_manager=SpotifyPKCE(scope=['playlist-read-private'], open_browser=True,
-                                              cache_handler=CacheFileHandler(cache_path='.spotipy_cache')))
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=['playlist-read-private'], show_dialog=True,
+                                               cache_handler=CacheFileHandler(cache_path='.spotipy_cache')))
 
 
 def create_dash_app(server, google, dashboard_metadata):
