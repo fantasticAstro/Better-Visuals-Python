@@ -7,6 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 from flask import session, redirect, url_for, request
+from urllib.parse import urlencode, urlparse, urlunparse, parse_qs
 
 import pandas as pd
 from collections import Counter
@@ -23,8 +24,6 @@ from utils.utils import *
 # stylesheet with the .dbc class from dash-bootstrap-templates library
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 fa_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=['playlist-read-private'], show_dialog=True,
-                                               cache_handler=CacheFileHandler(cache_path='.spotipy_cache')))
 
 
 def create_dash_app(server, google, dashboard_metadata):
@@ -86,7 +85,6 @@ def create_dash_app(server, google, dashboard_metadata):
         ],
         style={"bottom": 0, "width": "100%", "background-color": "#f8f9fa", "padding": "0.5rem"},
     )
-
     dash_app.layout = dbc.Container(
         html.Div(
             [
@@ -96,10 +94,22 @@ def create_dash_app(server, google, dashboard_metadata):
                         dbc.Col(
                             [
                                 dbc.Card(
-                                    dbc.CardBody(
-                                        html.Button("Fetch Data", id="fetch-data-button", n_clicks=0,
-                                                    className="btn btn-info btn-lg", style={'width': '100%'}),
-                                    ),
+                                    dbc.CardBody([
+                                        "View you change in taste by comparing your annual 'Your Top 100 Songs XXXX' Spotify playlists",
+                                        html.Hr(),
+                                        dbc.Spinner(id='loading',
+                                                    children=[
+                                                        html.Button("Fetch Data", id="fetch-data-button", n_clicks=0,
+                                                                    className="btn btn-info btn-lg",
+                                                                    style={'width': '100%'}),
+                                                        dcc.Store(id='tracks-df'),
+                                                        dcc.Store(id='tracks-encoded-df'),
+                                                        dcc.Store(id='years-list'),
+                                                        dcc.Store(id='artist-presence-df'),
+                                                        dcc.Store(id='genre-counter-df'),
+                                                        dcc.Store(id='color-map'),
+                                                    ]),
+                                    ]),
                                     className="mb-4"
                                 ),
                                 dbc.Card(
@@ -146,18 +156,13 @@ def create_dash_app(server, google, dashboard_metadata):
                 ),
                 footer,
                 dcc.Location(id='url'),
-                dcc.Store(id='tracks-df'),
-                dcc.Store(id='tracks-encoded-df'),
-                dcc.Store(id='years-list'),
-                dcc.Store(id='artist-presence-df'),
-                dcc.Store(id='genre-counter-df'),
-                dcc.Store(id='color-map'),
             ],
             className="dbc",
         ),
         fluid=True,
         style={"margin": 0, "padding": 0, "width": "100%", "max-width": "100%", "overflow-x": "hidden"},
     )
+
 
     @dash_app.callback(
         dd.Output("tracks-df", "data"),
@@ -166,11 +171,22 @@ def create_dash_app(server, google, dashboard_metadata):
         dd.Output("genre-counter-df", "data"),
         dd.Output("years-list", "data"),
         dd.Output("song-occurance-flow-year", "options"),
-        dd.Input("fetch-data-button", "n_clicks")
+        dd.Output("url", "href"),
+        dd.Output("url", "refresh"),
+        dd.Input("fetch-data-button", "n_clicks"),
+        dd.State("url", "href"),
     )
-    def fetch_spotify_data(n_clicks):
+    def fetch_spotify_data(n_clicks, current_url):
+        auth_manager = SpotifyOAuth(scope=['playlist-read-private'], show_dialog=True, cache_handler=CacheFileHandler(cache_path='.spotipy_cache'))
+        # Check for valid_token
+        valid_token = auth_manager.validate_token(auth_manager.cache_handler.get_cached_token())
+        # Check for the code in the URL
+        parsed_url = urlparse(current_url)
+        query_params = parse_qs(parsed_url.query)
+        code = query_params.get("code", [None])[0]
+
         save_folder = [storage['name'] for storage in dashboard_metadata["storage"] if storage['type'] == 'folder'][0]
-        if n_clicks == 0:
+        if n_clicks == 0 and code is None:
             files_to_check = ['tracks.json', 'tracks_encoded.json', 'artist_presence.json', 'genre_year_counter.json', 'years.json']
             if check_if_saved_data_exists(files_to_check, save_folder=save_folder, userid=session['id']):
                 tracks = fetch_data_from_disk('tracks.json', save_folder=save_folder, userid=session['id'])
@@ -180,10 +196,22 @@ def create_dash_app(server, google, dashboard_metadata):
                 years_json = fetch_data_from_disk('years.json', save_folder=save_folder, userid=session['id'])
                 years = json.loads(years_json)
 
-                return tracks, tracks_encoded, artist_presence, genre_year_counter, years_json, years
+                return (tracks, tracks_encoded, artist_presence, genre_year_counter, years_json, years,) + (dash.no_update, )*2
             else:
                 raise dash.exceptions.PreventUpdate
 
+        auth_manager.get_auth_response = (lambda self: code).__get__(auth_manager, SpotifyOAuth)
+        if code is not None:
+            query_params.pop('code', None)
+            parsed_url = parsed_url._replace(query=urlencode(query_params, True))
+            current_url = urlunparse(parsed_url)
+
+        if code is None and valid_token is None:
+            # Redirect the user if the code is not present
+            auth_url = auth_manager.get_authorize_url()
+            return (dash.no_update,) * 6 + (auth_url, True)
+
+        sp = spotipy.Spotify(auth_manager=auth_manager)
         response = sp.current_user_playlists()
 
         # Download and process "Your Top Songs" playlists
@@ -293,7 +321,7 @@ def create_dash_app(server, google, dashboard_metadata):
         save_data_to_disk(genre_year_counter, 'genre_year_counter.json', save_folder=save_folder, userid=session['id'])
         save_data_to_disk(years_json, 'years.json', save_folder=save_folder, userid=session['id'])
 
-        return tracks, tracks_encoded, artist_presence, genre_year_counter, years_json, years
+        return (tracks, tracks_encoded, artist_presence, genre_year_counter, years_json, years) + (current_url, dash.no_update)
 
     @dash_app.callback(
         dd.Output("song-length-graph", "figure"),
@@ -422,7 +450,7 @@ def create_dash_app(server, google, dashboard_metadata):
         return g1, g2
 
     @dash_app.callback(
-        dd.Output('url', 'href'),
+        dd.Output('url', 'href', allow_duplicate=True),
         dd.Input("clear-data", "n_clicks"),
         prevent_initial_call=True,
     )
