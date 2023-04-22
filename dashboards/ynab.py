@@ -301,6 +301,7 @@ def create_dash_app(server, google, dashboard_metadata):
         unspent_row = pd.DataFrame({'Category Group': ['Unspent'], 'Category': ['Unspent'], 'Outflow': [unspent_money]})
         outflow_by_category = pd.concat([outflow_by_category, unspent_row], ignore_index=True)
         outflow_by_category = outflow_by_category[outflow_by_category['Category Group'] != 'Inflow']
+        outflow_by_category['Avg. Outflow'] = (outflow_by_category['Outflow']/(date_range_max - date_range_min + 1)).round(2)
 
         # Creating colors
         template = pio.templates['flatly']
@@ -318,9 +319,9 @@ def create_dash_app(server, google, dashboard_metadata):
         income_expense_fig.update_layout(title='Monthly Income, Expenses, and Savings', barmode='group')
 
         # Creating expense-category-graph
-        expense_category_fig = px.sunburst(outflow_by_category, path=['Category Group', 'Category'], values='Outflow')
+        expense_category_fig = px.sunburst(outflow_by_category, path=['Category Group', 'Category'], values='Outflow', custom_data=['Avg. Outflow'])
         expense_category_fig.update_traces(textinfo="label+percent entry")
-        expense_category_fig.update_traces(hovertemplate='<b>%{label}</b><br>Amount: $%{value}<br>')
+        expense_category_fig.update_traces(hovertemplate='<b>%{label}</b><br>Amount: $%{value}<br>Monthly Avg.: $%{customdata[0]}<br>')
         expense_category_fig.update_layout(title='Expenses by Category Group and Category')
 
         # Creating account-balance-graph
