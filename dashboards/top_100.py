@@ -16,7 +16,7 @@ import json
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from spotipy.cache_handler import CacheFileHandler
+from spotipy.cache_handler import FlaskSessionCacheHandler
 
 from utils.utils import *
 
@@ -177,7 +177,7 @@ def create_dash_app(server, google, dashboard_metadata):
         dd.State("url", "href"),
     )
     def fetch_spotify_data(n_clicks, current_url):
-        auth_manager = SpotifyOAuth(scope=['playlist-read-private'], show_dialog=True, cache_handler=CacheFileHandler(cache_path='.spotipy_cache'))
+        auth_manager = SpotifyOAuth(scope=['playlist-read-private'], show_dialog=True, cache_handler=FlaskSessionCacheHandler(session))
         # Check for valid_token
         valid_token = auth_manager.validate_token(auth_manager.cache_handler.get_cached_token())
         # Check for the code in the URL
