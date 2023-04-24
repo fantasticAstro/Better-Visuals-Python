@@ -4,7 +4,7 @@
 
 <img src="assets/logo.png" alt="Better Visuals Logo" width="300px">
 
-Better Visuals is a Plotly Dash app designed to host interactive and visually appealing dashboards.
+[Better Visuals](https://better-visuals.kavishhukmani.me/) is a Plotly Dash app designed to host interactive and visually appealing dashboards.
 
 ## Data Privacy
 Better Visuals is committed to user privacy. Any data collected is anonymized and not used for commercial purposes. The data is only used to track metrics and conduct educational analysis at an aggregated level.
