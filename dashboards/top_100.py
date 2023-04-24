@@ -306,7 +306,8 @@ def create_dash_app(server, google, dashboard_metadata):
 
         genre_year_counter = pd.DataFrame(genre_year_counter)
         genre_year_counter = genre_year_counter[genre_year_counter.index.isin(top_genres)]
-        genre_year_counter = genre_year_counter.reindex(top_genres).astype(int)
+        genre_year_counter = genre_year_counter.fillna(0)
+        genre_year_counter = genre_year_counter.reindex(top_genres, fill_value=0).astype(int)
         genre_year_counter = genre_year_counter.T
 
         tracks = tracks.to_json(date_format='iso', orient='split')
